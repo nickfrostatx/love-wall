@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Love Wall</title>
+    <style>
+      .container {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+      svg {
+        height: 100%;
+        width: 100%;
+      }
+      path {
+        fill: #F8BBD0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <svg></svg>
+    </div>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="//d3js.org/topojson.v1.min.js"></script>
+    <script>
+      var svg = d3.select('svg');
+      var map = svg.insert('svg:path');
+
+      function draw() {
+        var width = parseInt(svg.style('width')),
+          height = parseInt(svg.style('height'));
+
+        var projection = d3.geoMercator()
+          .scale(width / 2 / Math.PI)
+          .translate([width / 2, height / 2]);
+
+        var path = d3.geoPath()
+          .projection(projection);
+        
+        map.attr('d', path);
+      };
+
+      d3.json('/static/new.json',
+        function(error, world) {
+          if (error) throw error;
+
+          map.datum(topojson.feature(world, world.objects.countries))
+          window.addEventListener('resize', draw);
+          window.addEventListener('scroll', draw);
+          draw();
+        });
+    </script>
+  </body>
+</html>

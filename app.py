@@ -39,7 +39,7 @@ def create_app():
 
     @app.after_request
     def add_csp_header(response):
-        csp = app.config.get('CONTENT_SECURITY_POLICY'):
+        csp = app.config.get('CONTENT_SECURITY_POLICY')
         if csp:
             response.headers['Content-Security-Policy'] = csp
         return response

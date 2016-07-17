@@ -42,7 +42,7 @@ function draw(data) {
     .enter().append('svg:g')
       .attr('class', 'event')
       .attr('transform', toTransform)
-    .on('click', function(l) { window.event = '/events/' + l.id; });
+    .on('click', function(l) { window.location = '/events/' + l.id; });
 
   eventGroups.append('svg:circle')
     .attr('class', 'event-dot')

@@ -1,13 +1,8 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Love Wall</title>
-  </head>
-  <body>
+{% extends "lib/base.html" %}
+
+{% block body %}
     <h1>{{ event.event_name }}</h1>
     <div>When: {{ event.date.strftime('%B %d, %Y') }}</div>
     <div>Where: {{ event.location_name }}</div>
     <div>{{ event.description }}</div>
-  </body>
-</html>
+{%- endblock %}

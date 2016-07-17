@@ -29,7 +29,7 @@ bp = flask.Blueprint('app', __name__)
 
 @bp.route('/')
 def home():
-    return flask.render_template('home.html')
+    return flask.render_template('pages/home.html')
 
 
 @bp.route('/events')
@@ -46,7 +46,7 @@ def events():
 @bp.route('/events/<int:id>')
 def event_page(id):
     event = Event.query.filter(Event.id==id).first_or_404()
-    return flask.render_template('event.html', event=event)
+    return flask.render_template('pages/event.html', event=event)
 
 
 class App(flask.Flask):
@@ -74,6 +74,20 @@ def create_app():
     app = App(__name__)
     db.init_app(app)
     app.register_blueprint(bp)
+
+    def handle_error(exc):
+        if not isinstance(exc, werkzeug.exceptions.HTTPException):
+            exc = werkzeug.exceptions.InternalServerError()
+        message = ("It looks like you're lost" if exc.code == 404
+                   else exc.message)
+        return flask.render_template(
+            'pages/error.html',
+             code=exc.code,
+             message=message
+        ), exc.code
+
+    for status in werkzeug.exceptions.default_exceptions:
+        app.errorhandler(status)(handle_error)
 
     @app.after_request
     def add_csp_header(response):

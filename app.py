@@ -1,8 +1,28 @@
 # -*- coding: utf-8 -*-
 """Love Wall"""
 import flask
+import flask_sqlalchemy
 import werkzeug.exceptions
 
+
+# Models
+
+app = flask.Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+db = flask_sqlalchemy.SQLAlchemy(app)
+
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_name = db.Column(db.String())
+    location_name = db.Column(db.String())
+    latitude = db.Column(db.Float())
+    longitude = db.Column(db.Float())
+    date = db.Column(db.Date())
+    description = db.Column(db.Text())
+
+
+# Views
 
 bp = flask.Blueprint('app', __name__)
 
@@ -13,15 +33,20 @@ def home():
 
 
 @bp.route('/events')
-def locations():
+def events():
     return flask.jsonify({
-        'events': [
-            {
-                'coords': [-122.0839, 37.3861],
-                'name': 'Mountain View, USA',
-            },
-        ],
+        'events': [{
+            'id': e.id,
+            'coords': [e.longitude, e.latitude],
+            'name': e.location_name,
+        } for e in Event.query.all()],
     })
+
+
+@bp.route('/events/<int:id>')
+def event_page(id):
+    event = Event.query.filter(Event.id==id).first_or_404()
+    return flask.render_template('event.html', event=event)
 
 
 class App(flask.Flask):
@@ -47,6 +72,7 @@ class App(flask.Flask):
 
 def create_app():
     app = App(__name__)
+    db.init_app(app)
     app.register_blueprint(bp)
 
     @app.after_request
@@ -56,10 +82,15 @@ def create_app():
             response.headers['Content-Security-Policy'] = csp
         return response
 
+    @app.before_first_request
+    def createdb():
+        db.create_all()
+
     return app
 
 
 if __name__ == '__main__':
     app = create_app()
     app.config['DEBUG'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.run()

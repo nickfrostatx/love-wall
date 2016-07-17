@@ -36,6 +36,14 @@ class App(flask.Flask):
 def create_app():
     app = App(__name__)
     app.register_blueprint(bp)
+
+    @app.after_request
+    def add_csp_header(response):
+        csp = app.config.get('CONTENT_SECURITY_POLICY'):
+        if csp:
+            response.headers['Content-Security-Policy'] = csp
+        return response
+
     return app
 
 

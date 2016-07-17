@@ -12,8 +12,8 @@
         left: 0;
       }
       svg {
-        height: 100%;
-        width: 100%;
+        display: block;
+        margin: 0 auto;
       }
       path {
         fill: #F8BBD0;
@@ -27,22 +27,37 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="//d3js.org/topojson.v1.min.js"></script>
     <script>
+      var container = d3.select('.container');
       var svg = d3.select('svg');
       var map = svg.insert('svg:path');
 
       function draw() {
-        var width = parseInt(svg.style('width')),
-          height = parseInt(svg.style('height'));
+        // Contain in div, preserve 3/2 aspect ratio
+        var parentWidth = parseInt(container.style('width')),
+          parentHeight = parseInt(container.style('height')),
+          ratio = 3/2, width, height;
 
+        if (parentWidth > ratio * parentHeight) {
+          height = parentHeight;
+          width = height * ratio;
+        } else {
+          width = parentWidth;
+          height = width / ratio;
+        }
+
+        svg.attr('width', width);
+        svg.attr('height', height);
+        
         var projection = d3.geoMercator()
           .scale(width / 2 / Math.PI)
-          .translate([width / 2, height / 2]);
+          .translate([width * .5, height * .7])
+          .rotate([-12, 0, 0]);
 
         var path = d3.geoPath()
           .projection(projection);
         
         map.attr('d', path);
-      };
+      }
 
       d3.json('/static/world.json',
         function(error, world) {

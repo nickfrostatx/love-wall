@@ -17,10 +17,8 @@ def locations():
     return flask.jsonify({
         'events': [
             {
-                'location': {
-                    'coords': [-122.0839, 37.3861],
-                    'name': 'Mountain View, USA',
-                },
+                'coords': [-122.0839, 37.3861],
+                'name': 'Mountain View, USA',
             },
         ],
     })

@@ -1,10 +1,10 @@
 var container = d3.select('.container');
-  var svg = d3.select('svg');
-  var map = svg.insert('svg:path')
+var svg = d3.select('svg');
+var map = svg.insert('svg:path')
   .attr('class', 'map');
-  var locations = svg.insert('svg:g');
+var events = svg.insert('svg:g');
 
-  function draw(events) {
+function draw(data) {
   // Contain in div, preserve 3/2 aspect ratio
   var parentWidth = parseInt(container.style('width')),
     parentHeight = parseInt(container.style('height')),
@@ -31,35 +31,37 @@ var container = d3.select('.container');
 
   map.attr('d', path);
 
-  var toTransform = function(evt) {
-    var loc = projection(evt.location.coords);
+  var toTransform = function(l) {
+    var loc = projection(l.coords);
     return 'translate(' + loc[0] + ',' + loc[1] + ')';
   }
 
-  var locationGroups = locations.selectAll('g')
+  var eventGroups = events.selectAll('g')
       .attr('transform', toTransform)
-    .data(events)
+    .data(data)
     .enter().append('svg:g')
-      .attr('transform', toTransform);
+      .attr('class', 'event')
+      .attr('transform', toTransform)
+    .on('click', function(l) { window.event = '/events/' + l.id; });
 
-  locationGroups.append('svg:circle')
-    .attr('class', 'location-dot')
+  eventGroups.append('svg:circle')
+    .attr('class', 'event-dot')
     .attr('r', 3)
     .attr('cx', 0)
     .attr('cy', 0);
 
-  locationGroups.append('svg:line')
-    .attr('class', 'location-line')
+  eventGroups.append('svg:line')
+    .attr('class', 'event-line')
     .attr('x1', 0)
     .attr('y1', 0)
     .attr('x2', -5)
     .attr('y2', -15);
 
-  locationGroups.append('svg:text')
-    .attr('class', 'location-name')
+  eventGroups.append('svg:text')
+    .attr('class', 'event-name')
     .attr('y', -19)
     .attr('text-anchor', 'middle')
-    .text(function(evt) { return evt.location.name });
+    .text(function(l) { return l.name });
 }
 
 function makeRequests(urls) {

@@ -15,11 +15,18 @@
         display: block;
         margin: 0 auto;
       }
-      .location {
-        fill: #F06292;
-      }
       .map {
         fill: #c3c3c3;
+      }
+      .location-dot {
+        fill: #F06292;
+      }
+      .location-line {
+        stroke: #f06292;
+        stroke-width: 1.5px;
+      }
+      .location-name {
+        fill: #f06292;
       }
     </style>
   </head>
@@ -28,13 +35,13 @@
       <svg></svg>
     </div>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="//d3js.org/topojson.v1.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
     <script>
       var container = d3.select('.container');
       var svg = d3.select('svg');
       var map = svg.insert('svg:path')
         .attr('class', 'map');
-      var places = svg.insert('svg:g');
+      var locations = svg.insert('svg:g');
 
       function draw(events) {
         // Contain in div, preserve 3/2 aspect ratio
@@ -58,30 +65,40 @@
           .translate([width * .5, height * .7])
           .rotate([-12, 0, 0]);
 
-        places.selectAll('circle')
-            .attr('cx', function(evt) {
-              return projection(evt.location.coords)[0];
-            })
-            .attr('cy', function(evt) {
-              return projection(evt.location.coords)[1];
-            })
-          .data(events)
-          .enter().append('svg:circle')
-            .attr('class', 'location')
-            .attr('r', 3)
-            .attr('cx', function(evt) {
-              return projection(evt.location.coords)[0];
-            })
-            .attr('cy', function(evt) {
-              return projection(evt.location.coords)[1];
-            });
-
-        
-        
         var path = d3.geoPath()
           .projection(projection);
         
         map.attr('d', path);
+
+        var toTransform = function(evt) {
+          var loc = projection(evt.location.coords);
+          return 'translate(' + loc[0] + ',' + loc[1] + ')';
+        }
+
+        var locationGroups = locations.selectAll('g')
+            .attr('transform', toTransform)
+          .data(events)
+          .enter().append('svg:g')
+            .attr('transform', toTransform);
+
+        locationGroups.append('svg:circle')
+          .attr('class', 'location-dot')
+          .attr('r', 3)
+          .attr('cx', 0)
+          .attr('cy', 0);
+
+        locationGroups.append('svg:line')
+          .attr('class', 'location-line')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', -5)
+          .attr('y2', -15);
+
+        locationGroups.append('svg:text')
+          .attr('class', 'location-name')
+          .attr('y', -19)
+          .attr('text-anchor', 'middle')
+          .text(function(evt) { return evt.location.name });
       }
 
       function makeRequests(urls) {

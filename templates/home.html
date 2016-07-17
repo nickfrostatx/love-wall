@@ -44,11 +44,11 @@
         map.attr('d', path);
       };
 
-      d3.json('/static/new.json',
+      d3.json('/static/world.json',
         function(error, world) {
           if (error) throw error;
 
-          map.datum(topojson.feature(world, world.objects.countries))
+          map.datum(topojson.feature(world, world.objects.subunits))
           window.addEventListener('resize', draw);
           window.addEventListener('scroll', draw);
           draw();

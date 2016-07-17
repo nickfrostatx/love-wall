@@ -12,6 +12,20 @@ def home():
     return flask.render_template('home.html')
 
 
+@bp.route('/events')
+def locations():
+    return flask.jsonify({
+        'events': [
+            {
+                'location': {
+                    'coords': [-122.0839, 37.3861],
+                    'name': 'Mountain View, USA',
+                },
+            },
+        ],
+    })
+
+
 class App(flask.Flask):
 
     def send_static_file(self, filename):

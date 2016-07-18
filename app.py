@@ -74,7 +74,7 @@ class SentimentVote(db.Model):
     session_id = db.Column(db.Integer, db.ForeignKey(Session.id))
     session = db.relationship(Session,
                               backref=db.backref('votes', lazy='dynamic'))
-    direction = db.Column(db.Enum('up', 'down'))
+    direction = db.Column(db.Enum('up', 'down', name='vote_types'))
     __table_args__ = (db.UniqueConstraint('sentiment_id', 'session_id',
                                           name='uq_sentiment_session'),)
 

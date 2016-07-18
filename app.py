@@ -154,6 +154,7 @@ def heart(id):
         db.session.commit()
         return flask.Response(status=204)
     except sqlalchemy.exc.IntegrityError:
+        raise
         raise werkzeug.exceptions.Conflict('You have already voted')
 
 

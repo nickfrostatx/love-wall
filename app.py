@@ -3,6 +3,7 @@
 import base64
 import datetime
 import functools
+import hashlib
 import os
 
 import flask
@@ -27,7 +28,8 @@ class Event(db.Model):
     description = db.Column(db.Text)
 
     def get_score(self):
-        return self.hearts.count()
+        return (int.from_bytes(hashlib.sha1(b'test%d' % self.id).digest()[:2],
+                               'big') % 1024 + 1024 + self.hearts.count())
 
 
 class Session(db.Model):
@@ -256,6 +258,7 @@ class App(flask.Flask):
 
 def create_app():
     app = App(__name__)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     app.register_blueprint(bp)
 

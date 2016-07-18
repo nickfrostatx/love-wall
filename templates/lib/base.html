@@ -57,6 +57,34 @@
         resize: none;
       }
 
+      /* Sentiment votes */
+      .sentiment > .vote-score {
+        display: inline-block;
+        text-align: right;
+        width: 20px;
+      }
+      .sentiment > .arrows {
+        display: inline-block;
+        margin: 0 20px;
+      }
+      .sentiment > .arrows > .vote {
+        display: inline-block;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+      }
+      .sentiment > .arrows > .vote.up {
+        border-bottom: 10px solid #777;
+      }
+      .sentiment > .arrows > .vote.up.active {
+        border-bottom-color: orange;
+      }
+      .sentiment > .arrows > .vote.down {
+        border-top: 10px solid #777;
+      }
+      .sentiment > .arrows > .vote.down.active {
+        border-top-color: blue;
+      }
+
       /* Error page */
       .error-code, .error-msg {
         text-align: center;

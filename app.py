@@ -28,7 +28,7 @@ class Event(db.Model):
     description = db.Column(db.Text)
 
     def get_score(self):
-        return self.votes.count()
+        return self.hearts.count()
 
 
 class Session(db.Model):
@@ -39,10 +39,11 @@ class Heart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
     event_id = db.Column(db.Integer, db.ForeignKey(Event.id))
-    event = db.relationship(Event, backref=db.backref('votes', lazy='dynamic'))
+    event = db.relationship(Event, backref=db.backref('hearts',
+                                                      lazy='dynamic'))
     session_id = db.Column(db.Integer, db.ForeignKey(Session.id))
-    sessions = db.relationship(Session,
-                               backref=db.backref('votes', lazy='dynamic'))
+    session = db.relationship(Session,
+                              backref=db.backref('hearts', lazy='dynamic'))
     __table_args__ = (db.UniqueConstraint('event_id', 'session_id',
                                           name='uq_event_session'),)
 
@@ -53,6 +54,39 @@ class Sentiment(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey(Event.id))
     event = db.relationship(Event, backref=db.backref('sentiments',
                                                       lazy='dynamic'))
+    text = db.Column(db.Text)
+
+    def get_score(self):
+        ups = self.votes.filter(SentimentVote.direction == 'up').count()
+        downs = self.votes.filter(SentimentVote.direction == 'down').count()
+        return ups - downs
+
+    def vote_for(self, session_id):
+        return (self.votes.filter(SentimentVote.session_id == session_id)
+                    .first())
+
+
+
+class SentimentVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
+    sentiment_id = db.Column(db.Integer, db.ForeignKey(Sentiment.id))
+    sentiment = db.relationship(Sentiment, backref=db.backref('votes',
+                                                              lazy='dynamic'))
+    session_id = db.Column(db.Integer, db.ForeignKey(Session.id))
+    session = db.relationship(Session,
+                              backref=db.backref('votes', lazy='dynamic'))
+    direction = db.Column(db.Enum('up', 'down'))
+    __table_args__ = (db.UniqueConstraint('sentiment_id', 'session_id',
+                                          name='uq_sentiment_session'),)
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
+    sentiment_id = db.Column(db.Integer, db.ForeignKey(Sentiment.id))
+    sentiment = db.relationship(Sentiment, backref=db.backref('comments',
+                                                          lazy='dynamic'))
     text = db.Column(db.Text)
 
 
@@ -69,7 +103,8 @@ def init_session():
         db.session.commit()
         flask.session['id'] = sess.id
     if 'csrf' not in flask.session:
-        flask.session['csrf'] = base64.urlsafe_b64encode(os.urandom(30))
+        token = base64.urlsafe_b64encode(os.urandom(30)).decode('utf-8')
+        flask.session['csrf'] = token
 
 
 def csrf(fn):
@@ -106,8 +141,9 @@ def event_page(id):
     hearted = (Heart.query.filter(Heart.event == event,
                                   Heart.session_id == flask.session['id'])
                     .count() != 0)
+    sentiments = Sentiment.query.filter(Sentiment.event == event)
     return flask.render_template('pages/event.html', event=event,
-                                 hearted=hearted)
+                                 hearted=hearted, sentiments=sentiments)
 
 
 @bp.route('/events/<int:id>/heart')
@@ -123,14 +159,47 @@ def heart(id):
         raise werkzeug.exceptions.Conflict('You have already voted')
 
 
+@bp.route('/sentiments/<int:id>/votes')
+@csrf
+def sentiment_vote(id):
+    sentiment = Sentiment.query.filter(Sentiment.id == id).first_or_404()
+    session_id = flask.session['id']
+    v = sentiment.vote_for(session_id)
+    try:
+        how = flask.request.args['how']
+        if how in ('up', 'down'):
+            if v is None:
+                # New vote
+                v = SentimentVote(sentiment=sentiment, session_id=session_id,
+                                  direction=how)
+                db.session.add(v)
+                db.session.commit()
+            elif v.direction != how:
+                # Change existing vote
+                v.direction = how
+                db.session.add(v)
+                db.session.commit()
+        elif how == 'none':
+            if v is not None:
+                # Delete vote
+                db.session.delete(v)
+                db.session.commit()
+        else:
+            raise werkzeug.exceptions.BadRequest()
+        return flask.redirect(flask.url_for('.event_page',
+                              id=sentiment.event.id))
+    except sqlalchemy.exc.IntegrityError:
+        raise werkzeug.exceptions.Conflict('You have already voted')
+
+
 @bp.route('/events/<int:id>/sentiments/', methods=['POST'])
 @csrf
 def post_sentiment(id):
     event = Event.query.filter(Event.id == id).first_or_404()
-    sentiment = Sentiment(event=event, text=request.form['text'])
+    sentiment = Sentiment(event=event, text=flask.request.form['text'])
     db.session.add(sentiment)
     db.session.commit()
-    return flask.Response(status=204)
+    return flask.redirect(flask.url_for('.event_page', id=id), code=303)
 
 
 @bp.route('/admin', methods=['GET', 'POST'])

@@ -10,29 +10,52 @@
 
 {% block body %}
     <h1>{{ event.location_name }}</h1>
+
     {%- if hearted %}
     <span class="heart voted">{{ heart() }}</span>
     {%- else %}
     <a class="heart" id="heart" href="{{ url_for('app.heart', id=event.id, token=session['csrf']) }}">{{ heart() }}</a>
     {%- endif %}
+    
     <span id="score">{{ event.get_score() }}</span>
     <form class="new-sentiment" method="POST" action="{{ url_for('.post_sentiment', id=event.id) }}">
       <input type="hidden" name="token" value="{{ session['csrf'] }}">
       <textarea name="text" placeholder="Say something for them..."></textarea>
       <input type="submit">
     </form>
+    {%- for sentiment in sentiments %}
+    <div class="sentiment">
+      <span class="vote-score">{{ sentiment.get_score() }}</span>
+
+      <span class="arrows">
+        {%- if not sentiment.vote_for(session['id']) %}
+        <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
+        <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
+        {%- elif sentiment.vote_for(session['id']).direction == 'up' %}
+        <a class="vote up active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
+        <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
+        {%- else %}
+        <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
+        <a class="vote down active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
+        {%- endif %}
+      </span>
+
+      {{ sentiment.text }}
+    </div>
+    {%- endfor %}
     <script>
       // Heart button handling
       var heart = document.getElementById('heart');
       if (heart !== null) {
         var scoreElem = document.getElementById('score');
-        document.getElementById('heart').addEventListener('click', function(e) {
+        heart.addEventListener('click', function(e) {
           e.preventDefault();
           // Send the request
           var xhr = new XMLHttpRequest();
           xhr.open('GET', this.getAttribute('href'));
           xhr.send();
           // Update styles
+          this.setAttribute('href', 'javascript:void(0)');
           this.className = 'heart voted';
           scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
         });

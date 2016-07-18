@@ -9,15 +9,15 @@
 {%- endmacro %}
 
 {% block body %}
-    <h1>{{ event.location_name }}</h1>
-
-    {%- if hearted %}
-    <span class="heart voted">{{ heart() }}</span>
-    {%- else %}
-    <a class="heart" id="heart" href="{{ url_for('app.heart', id=event.id, token=session['csrf']) }}">{{ heart() }}</a>
-    {%- endif %}
-    
-    <span id="score">{{ event.get_score() }}</span>
+    <div class="title">
+      <h1>{{ event.location_name }}</h1>
+      {%- if hearted %}
+      <span class="heart voted">{{ heart() }}</span>
+      {%- else %}
+      <a class="heart" id="heart" href="{{ url_for('app.heart', id=event.id, token=session['csrf']) }}">{{ heart() }}</a>
+      {%- endif %}
+      <span id="score">{{ event.get_score() }}</span>
+    </div>
     <form class="new-sentiment" method="POST" action="{{ url_for('.post_sentiment', id=event.id) }}">
       <input type="hidden" name="token" value="{{ session['csrf'] }}">
       <textarea name="text" placeholder="Say something for them..."></textarea>

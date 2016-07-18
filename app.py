@@ -51,7 +51,8 @@ class Sentiment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
     event_id = db.Column(db.Integer, db.ForeignKey(Event.id))
-    event = db.relationship(Event, backref=db.backref('sentiments', lazy='dynamic'))
+    event = db.relationship(Event, backref=db.backref('sentiments',
+                                                      lazy='dynamic'))
     text = db.Column(db.Text)
 
 

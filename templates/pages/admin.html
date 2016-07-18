@@ -1,0 +1,63 @@
+{% extends "lib/base.html" %}
+
+{% block body %}
+    {%- with messages = get_flashed_messages() %}
+    {%- if messages %}
+    <ul class=flashes>
+      {%- for message in messages %}
+      <li>{{ message }}</li>
+      {%- endfor %}
+      </ul>
+    {%- endif %}
+    {%- endwith %}
+    <button id="add">Add</button>
+    <form method="POST">
+      <input type="hidden" id="new" name="new" value="">
+      <input type="submit">
+    {%- for event in events %}
+      <div>
+        <input name="event_name{{ event.id }}" value="{{ event.event_name }}">
+        <input name="location_name{{ event.id }}" value="{{ event.location_name }}">
+        <input name="latitude{{ event.id }}" value="{{ event.latitude }}">
+        <input name="longitude{{ event.id }}" value="{{ event.longitude }}">
+        <input name="date{{ event.id }}" value="{{ event.date }}">
+        <textarea name="description{{ event.id }}">{{ event.description }}</textarea>
+      </div>
+    {%- endfor %}
+      <div id="to-add"></div>
+    </form>
+    <div id="template" style="display: none">
+      <input name="event_name" placeholder="Event">
+      <input name="location_name" placeholder="Location">
+      <input name="latitude" placeholder="Latitude">
+      <input name="longitude" placeholder="Longitude">
+      <input name="date" placeholder="2016-01-31">
+      <textarea name="description" placeholder="description"></textarea>
+    </div>
+    <script>
+      var last = 0,
+        template = document.getElementById('template'),
+        newList = document.getElementById('new')
+        toAdd = document.getElementById('to-add');
+      document.getElementById('add').addEventListener('click', function() {
+        var id = 'new' + (++last);
+        // Copy the template
+        var newEvent = template.cloneNode(true);
+        newEvent.removeAttribute('id');
+        newEvent.removeAttribute('style');
+        // Append suffix to names (ex: "new1", "new6")
+        for (var i = 0; i < newEvent.childNodes.length; i++) {
+          var child = newEvent.childNodes[i];
+          if (child.tagName == 'INPUT' || child.tagName == 'TEXTAREA') {
+            child.setAttribute('name', child.getAttribute('name') + id);
+          }
+        }
+        // Throw it into the DOM
+        toAdd.appendChild(newEvent);
+        if (newList.value !== '') {
+          newList.value += ',';
+        }
+        newList.value += id;
+      });
+    </script>
+{%- endblock %}

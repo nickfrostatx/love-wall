@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Love Wall"""
+import datetime
 import flask
 import flask_sqlalchemy
 import werkzeug.exceptions
@@ -47,6 +48,38 @@ def events():
 def event_page(id):
     event = Event.query.filter(Event.id==id).first_or_404()
     return flask.render_template('pages/event.html', event=event)
+
+
+@bp.route('/admin', methods=['GET', 'POST'])
+def admin():
+    def populate_from_form(event, form, suffix):
+        event.event_name = form['event_name%s' % suffix]
+        event.location_name = form['location_name%s' % suffix]
+        event.latitude = float(form['latitude%s' % suffix])
+        event.longitude = float(form['longitude%s' % suffix])
+        event.date = datetime.datetime.strptime(
+            form['date%s' % suffix], '%Y-%m-%d').date()
+        event.description = form['description%s' % suffix]
+
+    if flask.request.method == 'POST':
+        try:
+            for event in Event.query.all():
+                try:
+                    populate_from_form(event, flask.request.form, suffix)
+                    db.session.add(event)
+                except KeyError:
+                    # The event was removed
+                    db.session.remove(event)
+            for new_suffix in flask.request.form.get('new', '').split(','):
+                event = Event()
+                populate_from_form(event, flask.request.form, new_suffix)
+                db.session.add(event)
+        except ValueError:
+            flask.flash('You gave me bad data!')
+            db.session.rollback()
+        else:
+            db.session.commit()
+    return flask.render_template('pages/admin.html', events=Event.query.all())
 
 
 class App(flask.Flask):
@@ -105,6 +138,7 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
+    app.config['SECRET_KEY'] = 'bm90IHRoZSBwcm9kIGtleQ'
     app.config['DEBUG'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.run()

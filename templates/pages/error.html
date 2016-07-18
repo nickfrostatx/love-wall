@@ -1,18 +1,7 @@
 {% extends "lib/base.html" %}
 
-{% block head %}
-    <style>
-      html {
-        text-align: center;
-      }
-      h1, a {
-        color: pink;
-      }
-    </style>
-{%- endblock %}
-
 {% block body %}
-    <h1>{{ code }}</h1>
-    <p>{{ message }}</p>
-    <p>You might want to go somewhere <a href="{{ url_for('app.home') }}">friendlier</a></p>
+    <h1 class="error-code">{{ code }}</h1>
+    <p class="error-msg">{{ message }}</p>
+    <p class="error-msg">You might want to go somewhere <a href="{{ url_for('app.home') }}">friendlier</a></p>
 {%- endblock %}

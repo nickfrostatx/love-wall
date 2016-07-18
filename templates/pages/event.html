@@ -1,20 +1,5 @@
 {% extends "lib/base.html" %}
 
-{% block head %}
-    <style>
-      .heart svg {
-        height: 40px;
-        width: 42.3px;
-      }
-      .heart g {
-        fill: #fff;
-      }
-      .voted g {
-        fill: #ffb6c1;
-      }
-    </style>
-{%- endblock %}
-
 {% macro heart() -%}
       <svg viewbox="0 0 497 470">
         <g stroke="#ffb6c1" stroke-width="20">

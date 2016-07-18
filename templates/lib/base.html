@@ -3,7 +3,64 @@
   <head>
     <meta charset="utf-8">
     <title>Love Wall</title>
-    {%- block head %}{% endblock %}
+    <style>
+      html {
+        font-family: BlinkMacSystemFont, 'HelveticaNeue', Helvetica, sans-serif;
+      }
+      
+      /* Map */
+      .container {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+      .mapsvg {
+        display: block;
+        margin: 0 auto;
+      }
+      .map {
+        fill: #c3c3c3;
+      }
+      .event {
+        cursor: pointer;
+      }
+      .event-dot {
+        fill: #F06292;
+      }
+      .event-line {
+        stroke: #f06292;
+        stroke-width: 1.5px;
+      }
+      .event-name {
+        fill: #f06292;
+      }
+
+      /* Hearts */
+      .heart svg {
+        height: 40px;
+        width: 42.3px;
+      }
+      .heart g {
+        fill: #fff;
+      }
+      .voted g {
+        fill: #ffb6c1;
+      }
+
+      /**/
+      .error-code, .error-msg {
+        text-align: center;
+      }
+      .error-code {
+        color: #ffb6c1;
+        font-size: 100px;
+      }
+      .error-msg > a {
+        color: #f06292;
+      }
+    </style>
   </head>
   <body>
     {%- block body %}{% endblock %}

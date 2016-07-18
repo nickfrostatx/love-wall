@@ -47,6 +47,14 @@ class Heart(db.Model):
                                           name='uq_event_session'),)
 
 
+class Sentiment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
+    event_id = db.Column(db.Integer, db.ForeignKey(Event.id))
+    event = db.relationship(Event, backref=db.backref('sentiments', lazy='dynamic'))
+    text = db.Column(db.Text)
+
+
 # Views
 
 bp = flask.Blueprint('app', __name__)
@@ -66,9 +74,11 @@ def init_session():
 def csrf(fn):
     @functools.wraps(fn)
     def wrapped(*args, **kwargs):
-        if not werkzeug.security.safe_str_cmp(flask.request.args['token'],
-                                              flask.session['csrf']):
-            raise BadRequest('Missing CSRF token')
+        token = flask.request.args.get('token') or \
+                flask.request.form.get('token')
+        actual = flask.session['csrf']
+        if not token or not werkzeug.security.safe_str_cmp(token, actual):
+            raise werkzeug.exceptions.BadRequest('Missing CSRF token')
         return fn(*args, **kwargs)
     return wrapped
 
@@ -110,6 +120,16 @@ def heart(id):
         return flask.Response(status=204)
     except sqlalchemy.exc.IntegrityError:
         raise werkzeug.exceptions.Conflict('You have already voted')
+
+
+@bp.route('/events/<int:id>/sentiments/', methods=['POST'])
+@csrf
+def post_sentiment(id):
+    event = Event.query.filter(Event.id == id).first_or_404()
+    sentiment = Sentiment(event=event, text=request.form['text'])
+    db.session.add(sentiment)
+    db.session.commit()
+    return flask.Response(status=204)
 
 
 @bp.route('/admin', methods=['GET', 'POST'])
@@ -174,7 +194,6 @@ def create_app():
     def handle_error(exc):
         if not isinstance(exc, werkzeug.exceptions.HTTPException):
             exc = werkzeug.exceptions.InternalServerError()
-        print(str(exc.args))
         if exc.code == 404:
             message = "It looks like you're lost"
         else:

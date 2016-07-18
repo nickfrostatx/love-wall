@@ -16,18 +16,38 @@
     <a class="heart" id="heart" href="{{ url_for('app.heart', id=event.id, token=session['csrf']) }}">{{ heart() }}</a>
     {%- endif %}
     <span id="score">{{ event.get_score() }}</span>
+    <form class="new-sentiment" method="POST" action="{{ url_for('.post_sentiment', id=event.id) }}">
+      <input type="hidden" name="token" value="{{ session['csrf'] }}">
+      <textarea name="text" placeholder="Say something for them..."></textarea>
+      <input type="submit">
+    </form>
     <script>
+      // Heart button handling
       var heart = document.getElementById('heart');
       if (heart !== null) {
         var scoreElem = document.getElementById('score');
         document.getElementById('heart').addEventListener('click', function(e) {
           e.preventDefault();
+          // Send the request
           var xhr = new XMLHttpRequest();
           xhr.open('GET', this.getAttribute('href'));
           xhr.send();
+          // Update styles
           this.className = 'heart voted';
           scoreElem.textContent = parseInt(scoreElem.textContent) + 1;
         });
+      }
+      // Auto-resize textareas
+      var areas = document.getElementsByTagName('textarea');
+      for (var i = 0; i < areas.length; i++) {
+        var resize = (function(offset) {
+          return function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + offset + 'px';
+          }
+        })(areas[i].offsetHeight - areas[i].clientHeight);
+        areas[i].addEventListener('keyup', resize);
+        areas[i].addEventListener('input', resize);
       }
     </script>
 {%- endblock %}

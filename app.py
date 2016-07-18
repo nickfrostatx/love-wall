@@ -86,7 +86,7 @@ class Comment(db.Model):
     date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())
     sentiment_id = db.Column(db.Integer, db.ForeignKey(Sentiment.id))
     sentiment = db.relationship(Sentiment, backref=db.backref('comments',
-                                                          lazy='dynamic'))
+                                                              lazy='dynamic'))
     text = db.Column(db.Text)
 
 

@@ -1,4 +1,5 @@
 *.py[cod]
 __pycache__
+.cache
 test.db
 venv

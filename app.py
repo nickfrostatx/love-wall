@@ -46,7 +46,7 @@ def events():
 
 @bp.route('/events/<int:id>')
 def event_page(id):
-    event = Event.query.filter(Event.id==id).first_or_404()
+    event = Event.query.filter(Event.id == id).first_or_404()
     return flask.render_template('pages/event.html', event=event)
 
 
@@ -111,13 +111,16 @@ def create_app():
     def handle_error(exc):
         if not isinstance(exc, werkzeug.exceptions.HTTPException):
             exc = werkzeug.exceptions.InternalServerError()
-        message = ("It looks like you're lost" if exc.code == 404
-                   else exc.message)
-        return flask.render_template(
-            'pages/error.html',
-             code=exc.code,
-             message=message
-        ), exc.code
+        print(str(exc.args))
+        if exc.code == 404:
+            message = "It looks like you're lost"
+        else:
+            try:
+                message = exc.message
+            except AttributeError:
+                message = "Internal Server Error"
+        return flask.render_template('pages/error.html', code=exc.code,
+                                     message=message), exc.code
 
     for status in werkzeug.exceptions.default_exceptions:
         app.errorhandler(status)(handle_error)

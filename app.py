@@ -283,6 +283,10 @@ def create_app():
             response.headers['Content-Security-Policy'] = csp
         return response
 
+    @app.before_first_request
+    def create_db():
+        db.create_all()
+
     return app
 
 

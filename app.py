@@ -66,7 +66,6 @@ class Sentiment(db.Model):
                     .first())
 
 
-
 class SentimentVote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=sqlalchemy.sql.func.now())

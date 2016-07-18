@@ -56,33 +56,52 @@
         min-height: 10px;
         resize: none;
       }
+      .sentiment {
+        background-color: #b7dea4;
+        display: inline-block;
+        margin: 20px;
+        padding: 12px;
+        vertical-align: top;
+        width: 300px;
+      }
+      .sentiment-text {
+        font-size: 20px;
+        padding: 20px 10px 10px 10px;
+      }
 
       /* Sentiment votes */
-      .sentiment > .vote-score {
+      .vote-box {
+        background-color: #fff;
+        color: #777;
+        font-weight: 500;
+        padding: 5px 20px 5px 5px;
+        text-align: center;
+      }
+      .vote-score {
         display: inline-block;
         text-align: right;
-        width: 20px;
+        width: 75px;
       }
-      .sentiment > .arrows {
+      .arrows {
         display: inline-block;
-        margin: 0 20px;
+        margin: 0 10px;
       }
-      .sentiment > .arrows > .vote {
+      .arrows > .vote {
         display: inline-block;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
       }
-      .sentiment > .arrows > .vote.up {
+      .arrows > .vote.up {
         border-bottom: 10px solid #777;
       }
-      .sentiment > .arrows > .vote.up.active {
-        border-bottom-color: orange;
+      .arrows > .vote.up.active {
+        border-bottom-color: #96af40;
       }
-      .sentiment > .arrows > .vote.down {
+      .arrows > .vote.down {
         border-top: 10px solid #777;
       }
-      .sentiment > .arrows > .vote.down.active {
-        border-top-color: blue;
+      .arrows > .vote.down.active {
+        border-top-color: #96af40;
       }
 
       /* Error page */

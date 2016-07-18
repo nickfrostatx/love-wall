@@ -25,22 +25,23 @@
     </form>
     {%- for sentiment in sentiments %}
     <div class="sentiment">
-      <span class="vote-score">{{ sentiment.get_score() }}</span>
-
-      <span class="arrows">
-        {%- if not sentiment.vote_for(session['id']) %}
-        <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
-        <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
-        {%- elif sentiment.vote_for(session['id']).direction == 'up' %}
-        <a class="vote up active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
-        <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
-        {%- else %}
-        <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
-        <a class="vote down active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
-        {%- endif %}
-      </span>
-
-      {{ sentiment.text }}
+      <div class="vote-box">
+        <span class="vote-score">{{ sentiment.get_score() }} votes</span>
+        <span class="arrows">
+          {%- if not sentiment.vote_for(session['id']) %}
+          <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
+          <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
+          {%- elif sentiment.vote_for(session['id']).direction == 'up' %}
+          <a class="vote up active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
+          <a class="vote down" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='down') }}"></a>
+          {%- else %}
+          <a class="vote up" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='up') }}"></a>
+          <a class="vote down active" href="{{ url_for('.sentiment_vote', id=sentiment.id, token=session['csrf'], how='none') }}"></a>
+          {%- endif %}
+        </span>
+        6 comments
+      </div>
+      <div class="sentiment-text">{{ sentiment.text }}</div>
     </div>
     {%- endfor %}
     <script>

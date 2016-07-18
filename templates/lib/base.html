@@ -69,11 +69,31 @@
       }
 
       /* Sentiments */
-      .new-sentiment > textarea {
+      .new-sentiment {
+        border: 1px solid #999;
         display: inline-block;
+        margin: 20px;
+        padding: 11px;
+        vertical-align: top;
+        width: 300px;
+      }
+      .new-sentiment > textarea {
+        border: 1px solid #ccc;
         font-size: 20px;
         min-height: 10px;
+        padding: 4px 6px;
         resize: none;
+        width: 286px;
+      }
+      .new-sentiment > input[type=submit] {
+        background-color: #71bf3f;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        float: right;
+        font-size: 16px;
+        margin-top: 5px;
+        padding: 6px 12px;
       }
       .sentiment {
         background-color: #b7dea4;

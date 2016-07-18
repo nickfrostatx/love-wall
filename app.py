@@ -14,8 +14,7 @@ import werkzeug.security
 
 # Models
 
-app = flask.Flask(__name__)
-db = flask_sqlalchemy.SQLAlchemy(app)
+db = flask_sqlalchemy.SQLAlchemy()
 
 
 class Event(db.Model):
